@@ -1,0 +1,100 @@
+---
+
+---
+
+<form
+  action="https://api.web3forms.com/submit"
+  method="POST"
+  id="join-form"
+  class="needs-validation flex items-center justify-center w-full max-w-sm"
+  novalidate>
+  
+    <!-- Hidden access key for Web3Forms -->
+    <input type="hidden" name="access_key" value="a013fb29-4530-40bb-b64b-d02c5e2c6741" />
+    <!-- Botcheck (hidden) to avoid spam -->
+    <input type="checkbox" class="hidden" style="display:none" name="botcheck" />
+
+    <input type="email" name="email" required placeholder="your@email.com" class="rounded-l-md px-4 py-2 border border-gray-400 w-full">
+    <button type="submit" class="bg-black text-white px-6 py-2 rounded-r-md hover:bg-gray-800">Join</button>
+				
+    <br/>
+        <!-- Result message -->
+    </form>
+    <div id="result" class="mt-3 text-center"></div>
+
+<style>
+  .invalid-feedback,
+  .empty-feedback {
+    display: none;
+  }
+
+  .was-validated :placeholder-shown:invalid ~ .empty-feedback {
+    display: block;
+  }
+
+  .was-validated :not(:placeholder-shown):invalid ~ .invalid-feedback {
+    display: block;
+  }
+
+  .is-invalid,
+  .was-validated :invalid {
+    border-color: #dc3545;
+  }
+</style>
+
+<script is:inline>
+  const form = document.getElementById("join-form");
+  const result = document.getElementById("result");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    form.classList.add("was-validated");
+
+    // Form validation
+    if (!form.checkValidity()) {
+      form.querySelectorAll(":invalid")[0].focus();
+      return;
+    }
+
+    // Collect form data
+    const formData = new FormData(form);
+    formData.append('first_name', 'Queue')
+    formData.append('last_name', 'Check')
+    const object = Object.fromEntries(formData);
+    const json = JSON.stringify(object);
+
+    // Display loading message
+    result.innerHTML = "Sending...";
+
+    // Submit the form data to Web3Forms
+    fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: json,
+    })
+      .then(async (response) => {
+        let json = await response.json();
+        if (response.status == 200) {
+          result.classList.add("text-green-500");
+          result.innerHTML = json.message;
+        } else {
+          result.classList.add("text-red-500");
+          result.innerHTML = json.message;
+        }
+      })
+      .catch((error) => {
+        result.classList.add("text-red-500");
+        result.innerHTML = "Something went wrong!";
+      })
+      .then(() => {
+        form.reset();
+        form.classList.remove("was-validated");
+        setTimeout(() => {
+          result.style.display = "none";
+        }, 5000);
+      });
+  });
+</script>
